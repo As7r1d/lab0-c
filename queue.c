@@ -13,11 +13,34 @@
 /* Create an empty queue */
 struct list_head *q_new()
 {
-    return NULL;
+    struct list_head *head = malloc(sizeof(struct list_head));
+    if (!head) {
+        return NULL;
+    }
+    INIT_LIST_HEAD(head);
+    return head;
 }
 
 /* Free all storage used by queue */
-void q_free(struct list_head *head) {}
+void q_free(struct list_head *head)
+{
+    if (!head) {
+        return;
+    }
+    struct list_head *node, *safe;
+
+    list_for_each_safe (node, safe, head) {
+        element_t *entry = list_entry(node, element_t, list);
+
+        list_del(node);
+
+        if (entry->value) {
+            free(entry->value);
+        }
+        free(entry);
+    }
+    free(head);
+}
 
 /* Insert an element at head of queue */
 bool q_insert_head(struct list_head *head, char *s)
