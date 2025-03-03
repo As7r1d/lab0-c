@@ -145,6 +145,18 @@ int q_size(struct list_head *head)
 /* Delete the middle node in queue */
 bool q_delete_mid(struct list_head *head)
 {
+    if (!head || !head->next) {
+        return 0;
+    }
+    struct list_head *slow = head->next, *fast = head->next;
+    while (fast->next != head && fast->next->next != head) {
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+    element_t *element = list_entry(slow, element_t, list);
+    list_del(slow);
+
+    q_release_element(element);
     // https://leetcode.com/problems/delete-the-middle-node-of-a-linked-list/
     return true;
 }
@@ -152,6 +164,43 @@ bool q_delete_mid(struct list_head *head)
 /* Delete all nodes that have duplicate string */
 bool q_delete_dup(struct list_head *head)
 {
+    if (!head || list_empty(head))
+        return false;
+
+    struct list_head *current = head->next;
+
+    while (current != head && current->next != head) {
+        element_t *current_element = list_entry(current, element_t, list);
+        struct list_head *compare = current->next;
+        struct list_head *next_current = current->next;
+        bool found_duplicate = false;
+
+        while (compare != head) {
+            struct list_head *next_compare = compare->next;
+            element_t *compare_element = list_entry(compare, element_t, list);
+
+            if (strcmp(current_element->value, compare_element->value) == 0) {
+                found_duplicate = true;
+
+                if (next_current == compare) {
+                    next_current = next_compare;
+                }
+
+                list_del(compare);
+                q_release_element(compare_element);
+            }
+
+            compare = next_compare;
+        }
+
+        if (found_duplicate) {
+            list_del(current);
+            q_release_element(current_element);
+            current = next_current;
+        } else {
+            current = current->next;
+        }
+    }
     // https://leetcode.com/problems/remove-duplicates-from-sorted-list-ii/
     return true;
 }
