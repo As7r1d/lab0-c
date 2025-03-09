@@ -323,7 +323,7 @@ void q_sort(struct list_head *head, bool descend)
         struct list_head *chosen;
 
 
-        if ((descend && cmp > 0) || (!descend && cmp < 0)) {
+        if ((descend && cmp >= 0) || (!descend && cmp <= 0)) {
             chosen = left.next;
             list_del(chosen);
         } else {
